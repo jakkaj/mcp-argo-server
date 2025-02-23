@@ -9,6 +9,7 @@ func toolsModule() fx.Option {
 	m := fx.Module("tests",
 		fx.Provide(NewLaunchTool),
 		fx.Provide(NewStatusTool),
+		fx.Provide(NewResultTool),
 	)
 
 	return m
