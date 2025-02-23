@@ -28,6 +28,36 @@ You can see the Argo interface at [https://localhost:2746/workflows/argo/](https
 
 You can check that the app is building and the MCP is working by typing `make run`.
 
+## Testing with Python
+
+The project includes a Python test client that demonstrates how to interact with the MCP Argo server. The test client is located in `python/test_with_autogen.py` and showcases:
+
+- Submitting Argo workflows
+- Checking workflow status
+- Waiting for workflow completion
+- Retrieving workflow results
+
+To run the Python test:
+
+1. Ensure you have Python dependencies installed:
+   ```bash
+   cd python
+   make install
+   ```
+
+2. Run the test script:
+   ```bash
+   python test_with_autogen.py
+   ```
+
+or... just debug it to step through. 
+
+The script will:
+- Connect to the MCP Argo server
+- Iterate the tools and print them out
+- Submit a sample workflow from `kube/argo-hello-world.yaml`
+- Monitor the workflow status until completion
+- Display the workflow results
 
 ## Contributing
 
