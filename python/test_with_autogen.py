@@ -46,6 +46,7 @@ def print_mcp_tools(tools: List[StdioMcpToolAdapter]) -> None:
 class ArgoSubmitConfigModel(BaseModel):
     manifest: str  # You can refine this type if needed
     namespace: str
+    wait: bool = False
 
 class ArgoStatusConfigModel(BaseModel):
     name: str
@@ -72,7 +73,17 @@ async def main() -> None:
         sys.exit(1)
 
     print(argo_tools)
+     #### Wait for the job to finish and get the output
+    argo_config_wait = ArgoSubmitConfigModel(manifest=argo_manifest, namespace="argo", wait=True)
+    res4 = await argo_tools[0].run(argo_config_wait, token)    
+    print(res4)
+    waited_name = res4[-1:][0]
+    argo_status_config = ArgoStatusConfigModel(name=waited_name.text, namespace="argo")
+    waitedResult = await argo_tools[1].run(argo_status_config, token)
+    print(waitedResult)
 
+
+    ### Don't wait auto, do it this side
     argo_config = ArgoSubmitConfigModel(manifest=argo_manifest, namespace="argo")
 
     res = await argo_tools[0].run(argo_config, token)

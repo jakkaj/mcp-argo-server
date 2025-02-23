@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/argoproj/argo-workflows/v3/pkg/apis/workflow/v1alpha1"
+	wfv1 "github.com/argoproj/argo-workflows/v3/pkg/apis/workflow/v1alpha1"
 	wfclientset "github.com/argoproj/argo-workflows/v3/pkg/client/clientset/versioned"
 	"github.com/ghodss/yaml"
 	"github.com/strowk/foxy-contexts/pkg/app"
@@ -37,6 +38,11 @@ func (h *LaunchTool) launchHandler(args map[string]interface{}) *mcp.CallToolRes
 		namespace = nsArg
 	}
 
+	wait := false
+	if waitArg, ok := args["wait"].(bool); ok && waitArg {
+		wait = true
+	}
+
 	var wf v1alpha1.Workflow
 	if err := yaml.Unmarshal([]byte(manifestYAML), &wf); err != nil {
 		h.logger.Error("Invalid workflow YAML", zap.Error(err))
@@ -53,6 +59,34 @@ func (h *LaunchTool) launchHandler(args map[string]interface{}) *mcp.CallToolRes
 		return errorResult(fmt.Sprintf("Failed to submit workflow: %v", err))
 	}
 	h.logger.Info("Workflow submitted", zap.String("name", createdWf.Name), zap.String("namespace", namespace))
+
+	if wait {
+		watch, err := h.wfClient.ArgoprojV1alpha1().Workflows(namespace).Watch(
+			context.Background(),
+			metav1.ListOptions{
+				FieldSelector: fmt.Sprintf("metadata.name=%s", createdWf.Name),
+			},
+		)
+		if err != nil {
+			return errorResult(fmt.Sprintf("Failed to watch workflow: %v", err))
+		}
+		defer watch.Stop()
+		for event := range watch.ResultChan() {
+			wf, ok := event.Object.(*wfv1.Workflow)
+
+			if !ok {
+				h.logger.Error("Failed to create workflow")
+				continue
+			}
+
+			if wf.Status.Phase == wfv1.WorkflowSucceeded ||
+				wf.Status.Phase == wfv1.WorkflowFailed ||
+				wf.Status.Phase == wfv1.WorkflowError {
+				break
+			}
+
+		}
+	}
 
 	res := successResult(createdWf.Name)
 
