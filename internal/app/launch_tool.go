@@ -32,7 +32,7 @@ func (h *LaunchTool) launchHandler(args map[string]interface{}) *mcp.CallToolRes
 	if !ok || manifestYAML == "" {
 		return errorResult("manifest is required and must be a YAML string")
 	}
-	namespace := "default"
+	namespace := "argo"
 	if nsArg, ok := args["namespace"].(string); ok && nsArg != "" {
 		namespace = nsArg
 	}
