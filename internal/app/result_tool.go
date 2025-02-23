@@ -2,7 +2,6 @@ package app
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 
 	wfclientset "github.com/argoproj/argo-workflows/v3/pkg/client/clientset/versioned"
@@ -23,23 +22,6 @@ func NewResultTool(wfClient wfclientset.Interface, logger *zap.Logger) *ResultTo
 		wfClient: wfClient,
 		logger:   logger,
 	}
-}
-
-// Define output struct types
-type ParameterOutput struct {
-	Name  string `json:"name"`
-	Value string `json:"value"`
-}
-
-type ArtifactOutput struct {
-	Name  string `json:"name"`
-	S3Key string `json:"s3Key"`
-}
-
-type NodeOutput struct {
-	NodeName   string            `json:"nodeName"`
-	Parameters []ParameterOutput `json:"parameters,omitempty"`
-	Artifacts  []ArtifactOutput  `json:"artifacts,omitempty"`
 }
 
 func (h *ResultTool) resultHandler(args map[string]interface{}) *mcp.CallToolResult {
@@ -91,54 +73,16 @@ func (h *ResultTool) resultHandler(args map[string]interface{}) *mcp.CallToolRes
 		}
 	}
 
-	var nodesOutput []NodeOutput
+	json_outputs, err := extractOutputs(wf)
 
-	for nodeName, node := range wf.Status.Nodes {
-		if node.Outputs != nil {
-			var params []ParameterOutput
-			for _, param := range node.Outputs.Parameters {
-				params = append(params, ParameterOutput{
-					Name:  param.Name,
-					Value: param.Value.String(),
-				})
-			}
-
-			// Collect artifacts.
-			var artifacts []ArtifactOutput
-			for _, artifact := range node.Outputs.Artifacts {
-				artifacts = append(artifacts, ArtifactOutput{
-					Name:  artifact.Name,
-					S3Key: artifact.S3.Key,
-				})
-			}
-
-			nodesOutput = append(nodesOutput, NodeOutput{
-				NodeName:   nodeName,
-				Parameters: params,
-				Artifacts:  artifacts,
-			})
-		}
-	}
-
-	result := struct {
-		Nodes []NodeOutput `json:"nodes"`
-	}{
-		Nodes: nodesOutput,
-	}
-
-	// Marshal the result into JSON.
-	jsonBytes, err := json.MarshalIndent(result, "", "  ")
 	if err != nil {
-		fmt.Println("Error marshalling JSON:", err)
-		return &mcp.CallToolResult{
-			IsError: boolPtr(true),
-			Content: nil,
-		}
+		h.logger.Error("Failed to extract outputs", zap.Error(err))
+		return errorResult(fmt.Sprintf("Failed to extract outputs: %v", err))
 	}
 
 	contentItems = append(contentItems, mcp.TextContent{
 		Type: "text",
-		Text: fmt.Sprintf(string(jsonBytes)),
+		Text: fmt.Sprintf(json_outputs),
 	})
 
 	if len(contentItems) == 0 {

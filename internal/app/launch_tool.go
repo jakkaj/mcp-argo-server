@@ -59,7 +59,7 @@ func (h *LaunchTool) launchHandler(args map[string]interface{}) *mcp.CallToolRes
 		return errorResult(fmt.Sprintf("Failed to submit workflow: %v", err))
 	}
 	h.logger.Info("Workflow submitted", zap.String("name", createdWf.Name), zap.String("namespace", namespace))
-
+	var waited_wf *wfv1.Workflow
 	if wait {
 		watch, err := h.wfClient.ArgoprojV1alpha1().Workflows(namespace).Watch(
 			context.Background(),
@@ -71,9 +71,10 @@ func (h *LaunchTool) launchHandler(args map[string]interface{}) *mcp.CallToolRes
 			return errorResult(fmt.Sprintf("Failed to watch workflow: %v", err))
 		}
 		defer watch.Stop()
+
 		for event := range watch.ResultChan() {
 			wf, ok := event.Object.(*wfv1.Workflow)
-
+			waited_wf = wf
 			if !ok {
 				h.logger.Error("Failed to create workflow")
 				continue
@@ -89,7 +90,14 @@ func (h *LaunchTool) launchHandler(args map[string]interface{}) *mcp.CallToolRes
 	}
 
 	res := successResult(createdWf.Name)
-
+	if wait && waited_wf != nil {
+		json_outputs, err := extractOutputs(waited_wf)
+		if err != nil {
+			h.logger.Error("Failed to extract outputs", zap.Error(err))
+			return errorResult(fmt.Sprintf("Failed to extract outputs: %v", err))
+		}
+		res.Content = append(res.Content, mcp.TextContent{Type: "text", Text: json_outputs})
+	}
 	return res
 }
 

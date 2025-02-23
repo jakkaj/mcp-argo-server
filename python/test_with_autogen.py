@@ -77,10 +77,10 @@ async def main() -> None:
     argo_config_wait = ArgoSubmitConfigModel(manifest=argo_manifest, namespace="argo", wait=True)
     res4 = await argo_tools[0].run(argo_config_wait, token)    
     print(res4)
-    waited_name = res4[-1:][0]
-    argo_status_config = ArgoStatusConfigModel(name=waited_name.text, namespace="argo")
-    waitedResult = await argo_tools[1].run(argo_status_config, token)
-    print(waitedResult)
+    # waited_name = res4[0:1][0]
+    # argo_status_config = ArgoStatusConfigModel(name=waited_name.text, namespace="argo")
+    # waitedResult = await argo_tools[1].run(argo_status_config, token)
+    # print(waitedResult)
 
 
     ### Don't wait auto, do it this side
