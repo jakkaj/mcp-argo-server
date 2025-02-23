@@ -24,6 +24,17 @@
 		"ghcr.io/dhoeric/features/k9s:1": {},
 		"ghcr.io/rio/features/k3d:1": {},
 		"ghcr.io/devcontainers-extra/features/argo-workflows:1": {}
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-python.python",
+				"ms-azuretools.vscode-docker",
+				"dbaeumer.vscode-eslint",
+				"premparihar.gotestexplorer",
+				"golang.go"
+			]
+		}
 	}
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	// "features": {},
