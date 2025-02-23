@@ -60,7 +60,7 @@ func TestToolsIntegration(t *testing.T) {
 			if !ok {
 				t.Error("Expected TextContent, got:", res.Content)
 			}
-			if tContent.Type == "name" {
+			if tContent.Type == "text" {
 				wfName = tContent.Text
 			}
 			fmt.Printf("%s: %s\n", tContent.Type, tContent.Text)

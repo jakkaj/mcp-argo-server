@@ -137,7 +137,7 @@ func (h *ResultTool) resultHandler(args map[string]interface{}) *mcp.CallToolRes
 	}
 
 	contentItems = append(contentItems, mcp.TextContent{
-		Type: "outputJson",
+		Type: "text",
 		Text: fmt.Sprintf(string(jsonBytes)),
 	})
 

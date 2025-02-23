@@ -4,6 +4,7 @@ from autogen_agentchat.agents import AssistantAgent
 from autogen_agentchat.ui import Console
 from autogen_agentchat.conditions import TextMentionTermination, MaxMessageTermination
 from autogen_agentchat.teams import RoundRobinGroupChat, SelectorGroupChat
+from autogen_core import CancellationToken
 from autogen_ext.models.openai import (
     OpenAIChatCompletionClient,
     AzureOpenAIChatCompletionClient,
@@ -14,6 +15,7 @@ import os
 import sys
 from pathlib import Path
 import httpx
+from pydantic import BaseModel
 from rich.console import Console as RichConsole
 
 def print_mcp_tools(tools: List[StdioMcpToolAdapter]) -> None:
@@ -41,7 +43,9 @@ def print_mcp_tools(tools: List[StdioMcpToolAdapter]) -> None:
 
         console.print("─" * 60 + "\n")
 
-
+class ArgoConfigModel(BaseModel):
+    manifest: str  # You can refine this type if needed
+    namespace: str
 
 async def main() -> None:
    
@@ -49,8 +53,24 @@ async def main() -> None:
         command="/workspaces/mcp-argo-server/bin/mcp-argo-server",        
     )
 
-    file_system_tools = await mcp_server_tools(argo_system_mcp_server)
-    print_mcp_tools(file_system_tools)
+    argo_tools = await mcp_server_tools(argo_system_mcp_server)
+    print_mcp_tools(argo_tools)
+
+    token = CancellationToken()
+
+    argo_manifest = ""
+    # load manifest string from ../kube/argo-hello-world.yaml
+    with open("kube/argo-hello-world.yaml", "r") as f:
+        argo_manifest = f.read()
+
+    if not argo_manifest:
+        print("argo_manifest is empty")
+        sys.exit(1)
+
+    argo_config = ArgoConfigModel(manifest=argo_manifest, namespace="argo")
+
+    res = await argo_tools[0].run(argo_config, token)
+    print(res)
 
 
 asyncio.run(main())

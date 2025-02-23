@@ -54,8 +54,8 @@ func (h *LaunchTool) launchHandler(args map[string]interface{}) *mcp.CallToolRes
 	}
 	h.logger.Info("Workflow submitted", zap.String("name", createdWf.Name), zap.String("namespace", namespace))
 
-	res := successResult(fmt.Sprintf("Workflow %q submitted successfully", createdWf.Name))
-	res.Content = append(res.Content, mcp.TextContent{Type: "name", Text: createdWf.Name})
+	res := successResult(createdWf.Name)
+
 	return res
 }
 
