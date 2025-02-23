@@ -9,11 +9,7 @@ metadata:
       This is a simple hello world example.
 spec:
   entrypoint: hello-world
-  outputs:
-    parameters:
-    - name: sampleOutput
-      valueFrom:
-        parameter: "{{steps.hello-world.outputs.parameters.sampleOutput}}"
+  
   templates:
   - name: hello-world
     container:
