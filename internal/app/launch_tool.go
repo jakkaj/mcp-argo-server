@@ -54,7 +54,9 @@ func (h *LaunchTool) launchHandler(args map[string]interface{}) *mcp.CallToolRes
 	}
 	h.logger.Info("Workflow submitted", zap.String("name", createdWf.Name), zap.String("namespace", namespace))
 
-	return successResult(fmt.Sprintf("Workflow %q submitted successfully", createdWf.Name))
+	res := successResult(fmt.Sprintf("Workflow %q submitted successfully", createdWf.Name))
+	res.Content = append(res.Content, mcp.TextContent{Type: "name", Text: createdWf.Name})
+	return res
 }
 
 // Change function signature to accept and return a pointer to app.Builder

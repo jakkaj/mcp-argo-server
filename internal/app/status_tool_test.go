@@ -10,7 +10,7 @@ import (
 	"go.uber.org/fx/fxtest"
 )
 
-func TestLaunchTool(t *testing.T) {
+func TestStatusTool(t *testing.T) {
 	mt := &SpecialTesting{T: t}
 
 	// Now you can call your extended method.
@@ -39,7 +39,7 @@ func TestLaunchTool(t *testing.T) {
 		}
 	}))
 
-	opts = append(opts, fx.Invoke(func(tool *LaunchTool) {
+	opts = append(opts, fx.Invoke(func(tool *LaunchTool, statusTool *StatusTool) {
 		res := tool.launchHandler(map[string]interface{}{
 			"manifest":  string(manifest),
 			"namespace": "argo",
@@ -64,6 +64,29 @@ func TestLaunchTool(t *testing.T) {
 			t.Error("Expected workflow name, got:", res.Content)
 		}
 
+		statusWrong := statusTool.statusHandler(map[string]interface{}{
+			"name":      "sdlkfjsdjklsdfjkl",
+			"namespace": "argo",
+		})
+
+		if statusWrong.IsError == nil && !*statusWrong.IsError {
+			t.Error("Expected error, got:", statusWrong.Content)
+		}
+
+		status := statusTool.statusHandler(map[string]interface{}{
+			"name":      wfName,
+			"namespace": "argo",
+		})
+		if status.IsError != nil && *status.IsError {
+			t.Error("Expected no error, got:", status.Content)
+		}
+		for _, item := range status.Content {
+			tContent, ok := item.(mcp.TextContent)
+			if !ok {
+				t.Error("Expected TextContent, got:", status.Content)
+			}
+			fmt.Printf("%s: %s\n", tContent.Type, tContent.Text)
+		}
 	}))
 
 	app := fxtest.New(t, opts...)
