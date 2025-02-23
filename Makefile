@@ -11,7 +11,7 @@ build:
 
 # Run the application
 run: build
-	go run ./cmd/mcp-argo-server
+	./test_mcp.sh
 
 # Clean the build
 clean:
