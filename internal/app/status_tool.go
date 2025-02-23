@@ -62,8 +62,8 @@ func (h *StatusTool) statusHandler(args map[string]interface{}) *mcp.CallToolRes
 	h.logger.Info("Workflow status retrieved", zap.String("name", name), zap.String("phase", phase))
 	res := successResult(outputText)
 	res.Content = append(res.Content, mcp.TextContent{Type: "text", Text: name})
-	res.Content = append(res.Content, mcp.TextContent{Type: "text", Text: phase})
 	res.Content = append(res.Content, mcp.TextContent{Type: "text", Text: statusMsg})
+	res.Content = append(res.Content, mcp.TextContent{Type: "text", Text: phase})
 	return res
 }
 

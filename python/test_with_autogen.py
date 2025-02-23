@@ -43,8 +43,12 @@ def print_mcp_tools(tools: List[StdioMcpToolAdapter]) -> None:
 
         console.print("─" * 60 + "\n")
 
-class ArgoConfigModel(BaseModel):
+class ArgoSubmitConfigModel(BaseModel):
     manifest: str  # You can refine this type if needed
+    namespace: str
+
+class ArgoStatusConfigModel(BaseModel):
+    name: str
     namespace: str
 
 async def main() -> None:
@@ -67,10 +71,31 @@ async def main() -> None:
         print("argo_manifest is empty")
         sys.exit(1)
 
-    argo_config = ArgoConfigModel(manifest=argo_manifest, namespace="argo")
+    print(argo_tools)
+
+    argo_config = ArgoSubmitConfigModel(manifest=argo_manifest, namespace="argo")
 
     res = await argo_tools[0].run(argo_config, token)
+    
     print(res)
 
+    name = res[-1:][0]
+
+    print (name.text)
+
+    argo_status_config = ArgoStatusConfigModel(name=name.text, namespace="argo")
+    
+    while True:
+        res2 = await argo_tools[2].run(argo_status_config, token)
+        phase = res2[-1:][0].text
+        print(phase)
+        if phase == "Succeeded":
+            break
+        await asyncio.sleep(2)
+
+    print(res2)
+
+    res3 = await argo_tools[1].run(argo_status_config, token)
+    print(res3)
 
 asyncio.run(main())
