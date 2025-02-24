@@ -8,10 +8,14 @@ metadata:
     workflows.argoproj.io/description: |
       This is a simple hello world example.
 spec:
-  entrypoint: hello-world
+  entrypoint: hello-world-template
   
   templates:
-  - name: hello-world
+  - name: hello-world-template
+    metadata:
+      displayName: "Hello World Display name"
+      annotations:
+        description: "This summarises the input text using an LLM"
     container:
       image: busybox
       command: [echo]

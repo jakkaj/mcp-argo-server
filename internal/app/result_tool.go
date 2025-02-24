@@ -48,30 +48,30 @@ func (h *ResultTool) resultHandler(args map[string]interface{}) *mcp.CallToolRes
 		return errorResult(fmt.Sprintf("Workflow %q is not completed (current phase: %s)", name, phase))
 	}
 
-	outputs := wf.Status.Outputs
+	//outputs := wf.Status.Outputs
 	var contentItems []interface{}
 
-	if outputs != nil && len(outputs.Parameters) > 0 {
-		for _, param := range outputs.Parameters {
-			contentItems = append(contentItems, mcp.TextContent{
-				Type: "text",
-				Text: fmt.Sprintf("%s: %s", param.Name, param.Value),
-			})
-		}
-	}
+	// if outputs != nil && len(outputs.Parameters) > 0 {
+	// 	for _, param := range outputs.Parameters {
+	// 		contentItems = append(contentItems, mcp.TextContent{
+	// 			Type: "text",
+	// 			Text: fmt.Sprintf("%s: %s", param.Name, param.Value),
+	// 		})
+	// 	}
+	// }
 
-	if outputs != nil && len(outputs.Artifacts) > 0 {
-		for _, art := range outputs.Artifacts {
-			info := art.Name
-			if art.Path != "" {
-				info += fmt.Sprintf(" (path: %s)", art.Path)
-			}
-			contentItems = append(contentItems, mcp.TextContent{
-				Type: "text",
-				Text: fmt.Sprintf("Artifact: %s", info),
-			})
-		}
-	}
+	// if outputs != nil && len(outputs.Artifacts) > 0 {
+	// 	for _, art := range outputs.Artifacts {
+	// 		info := art.Name
+	// 		if art.Path != "" {
+	// 			info += fmt.Sprintf(" (path: %s)", art.Path)
+	// 		}
+	// 		contentItems = append(contentItems, mcp.TextContent{
+	// 			Type: "text",
+	// 			Text: fmt.Sprintf("Artifact: %s", info),
+	// 		})
+	// 	}
+	// }
 
 	json_outputs, err := extractOutputs(wf)
 

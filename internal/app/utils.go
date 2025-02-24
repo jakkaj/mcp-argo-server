@@ -50,9 +50,10 @@ type ArtifactOutput struct {
 }
 
 type NodeOutput struct {
-	NodeName   string            `json:"nodeName"`
-	Parameters []ParameterOutput `json:"parameters,omitempty"`
-	Artifacts  []ArtifactOutput  `json:"artifacts,omitempty"`
+	NodeName     string            `json:"nodeName"`
+	Parameters   []ParameterOutput `json:"parameters,omitempty"`
+	Artifacts    []ArtifactOutput  `json:"artifacts,omitempty"`
+	TemplateName string            `json:"templateName,omitempty"`
 }
 
 func extractOutputs(wf *v1alpha1.Workflow) (string, error) {
@@ -78,9 +79,10 @@ func extractOutputs(wf *v1alpha1.Workflow) (string, error) {
 			}
 
 			nodesOutput = append(nodesOutput, NodeOutput{
-				NodeName:   nodeName,
-				Parameters: params,
-				Artifacts:  artifacts,
+				NodeName:     nodeName,
+				Parameters:   params,
+				Artifacts:    artifacts,
+				TemplateName: node.TemplateName,
 			})
 		}
 	}
