@@ -10,6 +10,8 @@ func toolsModule() fx.Option {
 		fx.Provide(NewLaunchTool),
 		fx.Provide(NewStatusTool),
 		fx.Provide(NewResultTool),
+		fx.Provide(NewDeleteWorkflowTool),
+		fx.Provide(NewDeleteWorkflowTemplateTool),
 	)
 
 	return m

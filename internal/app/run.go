@@ -29,6 +29,8 @@ func Run() {
 	builder = registerLaunchTool(builder)
 	builder = registerStatusTool(builder)
 	builder = registerResultTool(builder)
+	builder = registerDeleteWorkflowTool(builder)
+	builder = registerDeleteWorkflowTemplateTool(builder)
 
 	if err := builder.Run(); err != nil {
 		fmt.Println("Failed to run argo-mcp-wrapper:", err)

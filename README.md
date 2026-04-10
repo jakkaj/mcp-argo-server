@@ -4,7 +4,7 @@ An MCP-compliant server for running Argo Workflows written in Golang.
 
 ## Overview
 
-MCP Argo Server is a lightweight CLI tool that wraps Argo Workflows using JSON-RPC over STDIN/STDOUT. It leverages Foxy Contexts for RPC handling and client-go for interacting with Kubernetes and Argo Workflow resources. The project provides tools for launching workflows, checking workflow status, and retrieving results.
+MCP Argo Server is a lightweight CLI tool that wraps Argo Workflows using JSON-RPC over STDIN/STDOUT. It leverages Foxy Contexts for RPC handling and client-go for interacting with Kubernetes and Argo Workflow resources. The project provides tools for launching workflows, checking workflow status, retrieving results, and deleting workflows/templates.
 
 ## Installation
 
@@ -27,6 +27,51 @@ You can run a test workflow by typing `argo submit -n argo --watch ./kube/argo-h
 You can see the Argo interface at [https://localhost:2746/workflows/argo/](https://localhost:2746/workflows/argo/)
 
 You can check that the app is building and the MCP is working by typing `make run`.
+
+## MCP Tools
+
+The server currently exposes the following tools:
+
+- `launch`
+  - Submits a new Argo workflow.
+  - Inputs:
+    - `manifest` (required): Argo Workflow YAML manifest string
+    - `namespace` (optional): target namespace (defaults to `argo`)
+    - `wait` (optional): if `true`, waits until workflow reaches terminal phase
+- `status`
+  - Gets workflow status by name.
+  - Inputs:
+    - `name` (required): workflow name
+    - `namespace` (optional): target namespace
+- `result`
+  - Fetches output parameters/artifacts from a completed workflow.
+  - Inputs:
+    - `name` (required): workflow name
+    - `namespace` (optional): target namespace
+- `delete_workflow`
+  - Deletes a workflow by name.
+  - Inputs:
+    - `name` (required): workflow name
+    - `namespace` (optional): target namespace
+- `delete_workflow_template`
+  - Deletes a WorkflowTemplate by name.
+  - Inputs:
+    - `name` (required): workflow template name
+    - `namespace` (optional): target namespace
+
+### Delete Tool Examples
+
+Delete a workflow:
+
+```json
+{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"delete_workflow","arguments":{"name":"hello-world-abcde","namespace":"argo"}}}
+```
+
+Delete a workflow template:
+
+```json
+{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"delete_workflow_template","arguments":{"name":"busybox-node-cpu-check","namespace":"argo"}}}
+```
 
 ## Testing with Python
 
